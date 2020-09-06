@@ -1,0 +1,5 @@
+makexxd
+recompile
+replace
+strip
+test

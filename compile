@@ -1,0 +1,11 @@
+#!/bin/bash
+mkdir -p build && clear
+echo "Entering build directory"
+cd build && rm -r *
+echo "Running CMake now"
+cmake -Wno-dev ..
+echo "Running Make now"
+make #|| echo "Failure!" && exit -1
+echo "Moving executable to root directory"
+mv game ..
+echo "Thank you for preferring our services! :P"
