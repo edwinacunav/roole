@@ -129,6 +129,7 @@ static VALUE song_stop(VALUE self)
   Roole::Song *s = (Roole::Song*)RTYPEDDATA(self)->data;
   if (!s) return Qnil;
   s->stop();
+  rb_iv_set(Audio, "@current_song", Qnil);
   return Qtrue;
 }
 
@@ -160,6 +161,12 @@ static VALUE audio_current_song(VALUE self)
   if (song != Qnil && song_has_stopped(song))
     song = rb_iv_set(self, "@song", Qnil);
   return song;
+}
+
+void audio_stop_current_song()
+{
+  VALUE song = audio_current_song(Audio);
+  if (song != Qnil) song_stop(song);
 }
 
 static VALUE audio_on(VALUE self)

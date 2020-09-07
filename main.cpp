@@ -5,6 +5,7 @@
 #include "Scene.hpp"
 #include "xxd/icon.xxd"
 #include <exception>
+#include "AudioImpl.hpp"
 //extern const char script_game[];
 void init_module();
 void init_roole();
@@ -18,6 +19,7 @@ void init_audio();
 void init_scene();
 void init_window();
 void load_clear_all_sprites();
+void audio_stop_current_song();
 
 static VALUE scene, window, result;
 
@@ -189,6 +191,8 @@ int main(int argc, char *argv[])
   else
     main_scene_rescue(&state);
   load_clear_all_sprites();
+  audio_stop_current_song();
+  Roole::al_shutdown();
   if (window != 0) rb_funcall(window, rb_intern("close"), 0);
   ruby_cleanup(0);
   return state;
