@@ -43,7 +43,7 @@ static bool cur_song_looping;
 struct Roole::Sample::SampleData
 {
   ALuint buffer;
-  double this_volume;
+  double this_volume, this_speed, this_pan;
 
   SampleData(AudioFile&& audio_file)
   {
@@ -69,6 +69,26 @@ struct Roole::Sample::SampleData
   void set_volume(double volume)
   {
     this_volume = clamp(volume, 0.0, 1.2);
+  }
+
+  double speed() const
+  {
+    return this_speed;
+  }
+
+  void set_speed(double speed)
+  {
+    this_speed = speed;
+  }
+  
+  double pan() const
+  {
+    return this_pan;
+  }
+  
+  void set_pan(double pan)
+  {
+    this_pan = pan;
   }
 };
 
@@ -112,12 +132,12 @@ Roole::Sample::Sample(Roole::Reader reader)
 #endif
 }
 
-Roole::Channel Roole::Sample::play(double speed, bool looping) const
+Roole::Channel Roole::Sample::play(bool looping) const
 {
-  return play_pan(0, speed, looping);
+  return play_pan(looping);
 }
 
-Roole::Channel Roole::Sample::play_pan(double pan, double speed, bool looping) const
+Roole::Channel Roole::Sample::play_pan(bool looping) const
 {
   if (!data) return Channel();
   Channel channel = allocate_channel();
@@ -125,9 +145,9 @@ Roole::Channel Roole::Sample::play_pan(double pan, double speed, bool looping) c
   if (channel.current_channel() == NO_CHANNEL) return channel;
   ALuint source = al_source_for_channel(channel.current_channel());
   alSourcei(source, AL_BUFFER, data->buffer);
-  alSource3f(source, AL_POSITION, pan * 10, 0, 0);
+  alSource3f(source, AL_POSITION, data->pan() * 10, 0, 0);
   alSourcef(source, AL_GAIN, max(data->volume(), 0.0));
-  alSourcef(source, AL_PITCH, speed);
+  alSourcef(source, AL_PITCH, data->speed());
   alSourcei(source, AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
   alSourcePlay(source);
   return channel;
@@ -140,8 +160,17 @@ double Roole::Sample::volume() const
 
 void Roole::Sample::set_volume(double volume)
 {
-  if (volume > 1.2) volume /= 100.0;
-  data->set_volume(volume);
+  data->set_volume(volume / 100.0);
+}
+
+void Roole::Sample::set_speed(double speed)
+{
+  data->set_speed(speed / 100.0);
+}
+
+void Roole::Sample::set_pan(double pan)
+{
+  data->set_pan(pan / 100.0);
 }
 
 class Roole::Song::BaseData
@@ -402,8 +431,7 @@ double Roole::Song::volume() const
 
 void Roole::Song::set_volume(double volume)
 {
-  if (volume > 1.2) volume /= 100.0;
-  data->set_volume(volume);
+  data->set_volume(volume / 100.0);
 }
 
 void Roole::Song::update()

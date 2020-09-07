@@ -61,21 +61,17 @@ namespace Roole
     //! system and loads the sample data from a stream.
     explicit Sample(Reader reader);
     //! Plays the sample without panning.
-    //! \param speed Playback speed is only limited by the underlying audio library,
-    //! and can accept very high or low values. Use 1.0 for
-    //! normal playback speed.
-    Channel play(double speed = 1, bool looping = false) const;
+    Channel play(bool looping = false) const;
     //! Plays the sample with panning. Even if pan is 0.0, the sample will
     //! not be as loud as if it were played by calling play() due to the
     //! way the panning works.
     //! \param pan Can be anything from -1.0 (left) to 1.0 (right).
-    //! \param speed Playback speed is only limited by by the underlying audio library,
-    //! and can accept very high
-    //! or low values. Use 1.0 for normal playback speed.
-    Channel play_pan(double pan, double speed = 1, bool looping = false) const;
+    Channel play_pan(bool looping = false) const;
     //! \param volume Can be anything from 0.0 (silence) to 1.0 (full volume).
     double volume() const;
     void set_volume(double volume);
+    void set_speed(double speed);
+    void set_pan(double pan);
   };
 
   //! Songs are less flexible than samples. Only one Song can be played at any given time,
