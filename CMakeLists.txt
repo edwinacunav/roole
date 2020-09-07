@@ -178,6 +178,7 @@ set(MAIN_SOURCE
   src/ruby_sprite.cpp
   src/ruby_image.cpp
   src/ruby_font.cpp
+  src/ruby_audio.cpp
   src/ruby_scene.cpp
   src/ruby_window.cpp
   main.cpp

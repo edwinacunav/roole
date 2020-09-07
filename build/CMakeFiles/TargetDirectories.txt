@@ -1,0 +1,3 @@
+/home/kyonides/compile/roole/build/CMakeFiles/rebuild_cache.dir
+/home/kyonides/compile/roole/build/CMakeFiles/roole.dir
+/home/kyonides/compile/roole/build/CMakeFiles/edit_cache.dir

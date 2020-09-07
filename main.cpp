@@ -1,4 +1,3 @@
-//#include <exception>
 #include <SDL.h>
 #include "extras.hpp"
 #include <ruby/io.h>
@@ -15,6 +14,7 @@ void init_input();
 void init_sprite();
 void init_image();
 void init_font();
+void init_audio();
 void init_scene();
 void init_window();
 void load_clear_all_sprites();
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
     printf("Roole Engine by Kyonides Arkanthes\n");
     printf("Based on the Gosu for Ruby Engine by Julian Raschke et al.\n");
     if (!strcmp(argv[1], "-v") || !strcmp(argv[1], "--version")) {
-      printf("Roole version 0.10.0\n");
+      printf("Roole version 0.11.0\n");
       printf("Ruby version %s\n", version);
     } else if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
       print_help_ful_info();
@@ -171,6 +171,7 @@ int main(int argc, char *argv[])
   init_load();
   init_image();
   init_font();
+  init_audio();
   init_input();
   init_scene();
   init_window();

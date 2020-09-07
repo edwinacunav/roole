@@ -7,5 +7,5 @@ cmake -Wno-dev ..
 echo "Running Make now"
 make #|| echo "Failure!" && exit -1
 echo "Moving executable to root directory"
-mv game ..
+mv roole ..
 echo "Thank you for preferring our services! :P"

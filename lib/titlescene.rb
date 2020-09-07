@@ -1,6 +1,8 @@
 class TitleScene < BaseScene
   def initialize(pos)
     super()
+    @song = Load.bgm("Fantasy Night.ogg", true)
+    @song.play
     @index = pos
     @frame = 0
     @timer = 10
@@ -44,14 +46,12 @@ class TitleScene < BaseScene
       @frame = (@frame + 1) % 4
     else
       @timer -= 1
-    end #puts Input.button #Input.button?(Input::Escape), Input.button == Input::Escape
+    end
     if Input.press?(Input::Escape) 
-      #Input.button?(Input::Escape) or Input.button == Input::Escape #or Input.trigger?(Input::Escape)
       @shutdown = true
       Scene.timer = 10
       return
-    elsif Input.press?(Input::Return)#Input.button == Input::Return or Input.button == Input::Enter 
-      #Input.trigger?(Input::Return) or Input.trigger?(Input::Enter)
+    elsif Input.press?(Input::Return) or Input.press?(Input::Enter)
       if @index == 0
         Scene.scene = MapScene.new
       end

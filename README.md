@@ -29,10 +29,13 @@ Leave a blank line at the end of the file!
 * OpenAL
 * SDL2*
 * SDL2_image
+* stb_image.h
+* stb_image_write.h
 * vorbisfile
 * zlib (only for Ruby)
 * OpenGL header (alternatively GLES2 with `DEFINES+=GLES2_HEADER`)
 * libiconv (on Windows, optional with INI_ENCODING)
+* fontconfig
 
 ### CMake
 
