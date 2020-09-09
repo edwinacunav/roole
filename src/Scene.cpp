@@ -1,5 +1,7 @@
 #include "Scene.hpp"
 
+void input_reset_buttons();
+
 namespace Scene
 {
   unsigned long ms = 0;
@@ -55,4 +57,20 @@ bool Scene::is_zombie()
 void Scene::set_zombie()
 {
   status = 3;
+}
+
+bool Scene::is_game_reset()
+{
+  return status == 4;
+}
+
+void Scene::reset_game()
+{
+  status = 4;
+}
+
+void Scene::clear_status()
+{
+  status = 0;
+  input_reset_buttons();
 }

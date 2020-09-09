@@ -27,7 +27,9 @@ static void require_sdl_video()
   }
 }
 
-static array<bool, Roole::NUM_BUTTONS> button_states = { { false } };
+static array<bool, Roole::NUM_BUTTONS> button_new_states = { { false } };
+static array<bool, Roole::NUM_BUTTONS> button_old_states = { { false } };
+static array<bool, Roole::NUM_BUTTONS> button_up_states = { { false } };
 
 struct Roole::Input::Impl
 {
@@ -115,12 +117,16 @@ struct Roole::Input::Impl
   bool feed_sdl_event(const SDL_Event* e)
   {
     switch (e->type) {
-      case SDL_KEYDOWN:
+      case SDL_KEYDOWN: {
+        button_old_states[e->key.keysym.scancode] = false;
+        button_new_states[e->key.keysym.scancode] = true;
+        button_up_states[e->key.keysym.scancode] = false;
+        break;
+      }
       case SDL_KEYUP: {
-        if (e->key.repeat == 0 && e->key.keysym.scancode <= KB_RANGE_END) {
-          enqueue_event(e->key.keysym.scancode, e->type == SDL_KEYDOWN);
-          return true;
-        }
+        button_old_states[e->key.keysym.scancode] = true;
+        button_new_states[e->key.keysym.scancode] = false;
+        button_up_states[e->key.keysym.scancode] = true;
         break;
       }
       case SDL_MOUSEBUTTONDOWN:
@@ -171,22 +177,22 @@ struct Roole::Input::Impl
       int offset = GP_RANGE_BEGIN + GP_NUM_PER_GAMEPAD * (i + 1);
       for (int j = 0; j < current_gamepad.size(); ++j) {
         any_gamepad[j] = any_gamepad[j] || current_gamepad[j];
-        if (current_gamepad[j] && !button_states[j + offset]) {
-          button_states[j + offset] = true;
+        if (current_gamepad[j] && !button_new_states[j + offset]) {
+          button_new_states[j + offset] = true;
           enqueue_event(j + offset, true);
-        } else if (!current_gamepad[j] && button_states[j + offset]) {
-          button_states[j + offset] = false;
+        } else if (!current_gamepad[j] && button_new_states[j + offset]) {
+          button_new_states[j + offset] = false;
           enqueue_event(j + offset, false);
         }
       }
     }
     // And lastly, enqueue events for the virtual "any" gamepad.
     for (int j = 0; j < any_gamepad.size(); ++j) {
-      if (any_gamepad[j] && !button_states[j + GP_RANGE_BEGIN]) {
-        button_states[j + GP_RANGE_BEGIN] = true;
+      if (any_gamepad[j] && !button_new_states[j + GP_RANGE_BEGIN]) {
+        button_new_states[j + GP_RANGE_BEGIN] = true;
         enqueue_event(j + GP_RANGE_BEGIN, true);
-      } else if (!any_gamepad[j] && button_states[j + GP_RANGE_BEGIN]) {
-        button_states[j + GP_RANGE_BEGIN] = false;
+      } else if (!any_gamepad[j] && button_new_states[j + GP_RANGE_BEGIN]) {
+        button_new_states[j + GP_RANGE_BEGIN] = false;
         enqueue_event(j + GP_RANGE_BEGIN, false);
       }
     }
@@ -197,7 +203,7 @@ struct Roole::Input::Impl
     for (int event : event_queue) {
       bool down = (event >= 0);
       Button button(down ? event : ~event);
-      button_states[button.id()] = down;
+      button_new_states[button.id()] = down;
       if (down && input.on_button_down) {
         input.on_button_down(button);
       } else if (!down && input.on_button_up) {
@@ -325,7 +331,21 @@ Roole::Button Roole::Input::char_to_id(string ch)
 bool Roole::Input::down(Roole::Button btn)
 {
   if (btn == NO_BUTTON || btn.id() >= NUM_BUTTONS) return false;
-  return button_states[btn.id()];
+  return button_new_states[btn.id()];
+}
+
+bool Roole::Input::was_down(Roole::Button btn)
+{
+  if (btn == NO_BUTTON || btn.id() >= NUM_BUTTONS) return false;
+  return button_old_states[btn.id()];
+}
+
+bool Roole::Input::up(Roole::Button btn)
+{
+  if (btn == NO_BUTTON || btn.id() >= NUM_BUTTONS) return false;
+  bool is_up = button_up_states[btn.id()];
+  button_up_states[btn.id()] = false;
+  return is_up;
 }
 
 double Roole::Input::mouse_x() const

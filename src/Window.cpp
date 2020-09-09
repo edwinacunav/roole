@@ -352,6 +352,10 @@ void Roole::Window::close()
 void Roole::Window::button_down(Button button)
 {
   bool toggle_fullscreen;
+  if (button == KB_F12) {
+    Scene::reset_game();
+    return;
+  }
   // Default shortcuts for toggling fullscreen mode, see: https://github.com/gosu/gosu/issues/361
 #ifdef ROOLE_IS_MAC
   // cmd+F and cmd+ctrl+F are both common shortcuts for toggling fullscreen mode on macOS.

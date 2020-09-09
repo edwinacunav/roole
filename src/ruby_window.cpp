@@ -18,6 +18,11 @@ void Roole::Window::draw()
   window_protect_draw(window);
 }
 
+void Roole::Window::drop(const std::string &filename)
+{
+  window_drop(window, rstr(filename.c_str()));
+}
+
 static VALUE window_init(VALUE self)
 {
   VALUE window = rb_iv_set(scene, "@window", self);
@@ -168,7 +173,7 @@ static VALUE window_caption(VALUE self)
 
 static VALUE window_button_down(VALUE self, VALUE button)
 {
-  rb_iv_set(input, "@button", button);
+  //rb_iv_set(input, "@button", button);
   Roole::Window* window = (Roole::Window*)RTYPEDDATA(self)->data;
   if (!window) return Qnil;
   Roole::Button b;
@@ -195,6 +200,11 @@ static VALUE window_button_up(VALUE self, VALUE button)
   Roole::Button b;
   b = button == Qnil ? Roole::NO_BUTTON : Roole::Button(RB_FIX2INT(button));
   return button;
+}
+
+static VALUE window_drop(VALUE self, VALUE filename)
+{
+  return Qnil;
 }
 
 static VALUE window_screen_width(VALUE self)
@@ -269,9 +279,10 @@ void init_window()
   rb_define_method(Window, "framerate=", RMF(window_update_interval_set), 1);
   rb_define_method(Window, "caption=", RMF(window_caption_set), 1);
   rb_define_method(Window, "title=", RMF(window_caption_set), 1);
-  rb_define_method(Window, "button_down", RMF(window_button_down), 1);
-  rb_define_method(Window, "press_button", RMF(window_press_button), 1);
-  rb_define_method(Window, "button_up", RMF(window_button_up), 1);
+  //rb_define_method(Window, "button_down", RMF(window_button_down), 1);
+  //rb_define_method(Window, "press_button", RMF(window_press_button), 1);
+  //rb_define_method(Window, "button_up", RMF(window_button_up), 1);
+  rb_define_method(Window, "drop", RMF(window_drop), 1);
   rb_define_module_function(Window, "screen_width", RMF(window_screen_width), 0);
   rb_define_module_function(Window, "screen_height", RMF(window_screen_height), 0);
   rb_define_module_function(Window, "available_width", RMF(window_available_width), 0);

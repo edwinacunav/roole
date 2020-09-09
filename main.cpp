@@ -79,6 +79,11 @@ void main_loop(int *state)
       rb_funcall(window, rb_intern("close"), 0);
     if (Scene::has_crashed())
       main_scene_rescue(state);
+    if (Scene::is_game_reset()){
+      Scene::clear_status();
+      rb_protect(RPF(main_scene_init), Qnil, state);
+      continue;
+    }
     if (*state > 0 || get_scene() == Qnil) break;
   }
 }
@@ -141,7 +146,7 @@ void call_scene_init(int *state) {
   VALUE roole = rb_define_module("Roole");
   window = rb_const_get(roole, rb_intern("Window"));
   window = rb_funcall(window, rb_intern("new"), 0);
-  result = rb_protect(RPF(main_scene_init), Qnil, state);
+  rb_protect(RPF(main_scene_init), Qnil, state);
 }  
 
 int main(int argc, char *argv[])
@@ -157,7 +162,7 @@ int main(int argc, char *argv[])
     printf("Roole Engine by Kyonides Arkanthes\n");
     printf("Based on the Gosu for Ruby Engine by Julian Raschke et al.\n");
     if (!strcmp(argv[1], "-v") || !strcmp(argv[1], "--version")) {
-      printf("Roole version 0.11.0\n");
+      printf("Roole version 0.11.1\n");
       printf("Ruby version %s\n", version);
     } else if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
       print_help_ful_info();

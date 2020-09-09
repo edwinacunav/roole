@@ -1,7 +1,8 @@
 #include "extras.hpp"
 #include "Input.hpp"
+#include "Window.hpp"
 
-static VALUE RInput;
+static VALUE RInput, RScene;
 
 void input_define_constants(VALUE self)
 {
@@ -225,45 +226,10 @@ void input_define_constants(VALUE self)
   rb_define_const(self, "Gp3Button15", RB_INT2FIX(Roole::GP_3_BUTTON_15));
 }
 
-static VALUE input_is_button(VALUE self, VALUE btn)
+void input_reset_buttons()
 {
-  return rb_iv_get(self, "@button") == btn ? Qtrue : Qfalse;
-}
-
-VALUE input_states_get(VALUE self)
-{
-  return rb_iv_get(self, "@states");
-}
-
-static VALUE input_state_get(VALUE self, VALUE btn)
-{
-  return rb_hash_aref(input_states_get(self), btn);
-}
-
-static VALUE input_state_trigger(VALUE self, VALUE btn)
-{
-  return rb_iv_get(input_state_get(self, btn), "@trigger");
-}
-
-static VALUE input_state_repeat(VALUE self, VALUE btn)
-{
-  return rb_iv_get(input_state_get(self, btn), "@repeat");
-}
-
-static VALUE input_state_press(VALUE self, VALUE btn)
-{
-  return rb_iv_get(input_state_get(self, btn), "@press");
-}
-
-static VALUE input_released(VALUE self, VALUE btn)
-{
-  return rb_iv_get(self, "@released");
-}
-
-static VALUE input_clear_buttons(VALUE self)
-{
-  rb_iv_set(self, "@button", Qnil);
-  return rb_iv_set(self, "@released", Qnil);
+  //VALUE input = rb_define_module("Input");
+  //input_clear_buttons(input);
 }
 
 static VALUE input_pressed(VALUE self, VALUE btn)
@@ -272,39 +238,62 @@ static VALUE input_pressed(VALUE self, VALUE btn)
   return Roole::Input::down(b) ? Qtrue : Qfalse;
 }
 
+static VALUE input_released(VALUE self, VALUE btn)
+{
+  Roole::Button b = btn == Qnil ? Roole::NO_BUTTON : Roole::Button(RB_FIX2INT(btn));
+  return Roole::Input::up(b) ? Qtrue : Qfalse;
+}
+
+static VALUE input_triggered(VALUE self, VALUE btn)
+{
+  Roole::Button b = btn == Qnil ? Roole::NO_BUTTON : Roole::Button(RB_FIX2INT(btn));
+  return Roole::Input::was_down(b) && Roole::Input::up(b) ? Qtrue : Qfalse;
+}
+
+static VALUE input_is_chain(VALUE self, VALUE ary)
+{
+  return rb_iv_get(self, "@chain") == ary ? Qtrue : Qfalse;
+}
+
+static VALUE input_mouse_x(VALUE self)
+{
+  VALUE tmp = rb_iv_get(RScene, "@window");
+  Roole::Window *w = (Roole::Window*)RTYPEDDATA(tmp)->data;
+  if (!w) return DBL2NUM(0.0);
+  tmp = DBL2NUM(w->input().mouse_x());
+  return tmp;
+}
+
+static VALUE input_mouse_y(VALUE self)
+{
+  VALUE tmp = rb_iv_get(RScene, "@window");
+  Roole::Window *w = (Roole::Window*)RTYPEDDATA(tmp)->data;
+  if (!w) return DBL2NUM(0.0);
+  tmp = DBL2NUM(w->input().mouse_y());
+  return tmp;
+}
+
 void init_input()
 {
-  VALUE RInput = rb_define_module("Input");
+  RScene = rb_define_module("Scene");
+  RInput = rb_define_module("Input");
   input_define_constants(RInput);
-  VALUE state = rb_define_class_under(RInput, "State", rb_cObject);
   rb_define_attr(RInput, "repeat_button", 1, 1);
-  rb_define_attr(RInput, "button", 1, 1);
-  rb_define_attr(RInput, "released", 1, 1);
-  rb_define_attr(RInput, "states", 1, 0);
   rb_define_attr(RInput, "timer", 1, 1);
   VALUE modfunc = rb_obj_method(RInput, rb_sym("module_function"));
   VALUE methods[] = {
-    rb_sym("button"), rb_sym("button="),
-    rb_sym("released"), rb_sym("released="),
     rb_sym("repeat_button"), rb_sym("repeat_button="),
-    rb_sym("states"), rb_sym("timer"), rb_sym("timer=")
+    rb_sym("timer"), rb_sym("timer=")
   };
-  rb_method_call(9, methods, modfunc);
+  rb_method_call(4, methods, modfunc);
   rb_iv_set(RInput, "@repeat_button", Qnil);
   rb_iv_set(RInput, "@button", Qnil);
-  rb_iv_set(RInput, "@states", rb_hash_new());
   rb_iv_set(RInput, "@timer", RB_INT2FIX(0));
-  rb_define_attr(state, "trigger", 1, 1);
-  rb_define_attr(state, "repeat", 1, 1);
-  rb_define_attr(state, "press", 1, 1);
-  VALUE void_state = rb_funcall(state, rb_intern("new"), 0);
-  VALUE states = rb_iv_get(RInput, "@states");
-  rb_hash_aset(states, Qnil, void_state);
+  rb_iv_set(RInput, "@chain", rb_ary_new());
   rb_define_module_function(RInput, "press?", RMF(input_pressed), 1);
-  rb_define_module_function(RInput, "button?", RMF(input_is_button), 1);
   rb_define_module_function(RInput, "release?", RMF(input_released), 1);
-  rb_define_module_function(RInput, "state", RMF(input_state_get), 1);
-  rb_define_module_function(RInput, "trigger?", RMF(input_state_trigger), 1);
-  rb_define_module_function(RInput, "repeat?", RMF(input_state_repeat), 1);
-  rb_define_module_function(RInput, "clear_buttons", RMF(input_clear_buttons), 0);
+  rb_define_module_function(RInput, "trigger?", RMF(input_triggered), 1);
+  rb_define_module_function(RInput, "chain?", RMF(input_is_chain), 1);
+  rb_define_module_function(RInput, "mouse_x", RMF(input_mouse_x), 0);
+  rb_define_module_function(RInput, "mouse_y", RMF(input_mouse_y), 0);
 }

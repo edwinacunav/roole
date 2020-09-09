@@ -47,14 +47,17 @@ class TitleScene < BaseScene
     else
       @timer -= 1
     end
-    if Input.press?(Input::Escape) 
+    if Input.trigger?(Input::Escape) 
       @shutdown = true
       Scene.timer = 10
       return
-    elsif Input.press?(Input::Return) or Input.press?(Input::Enter)
+    elsif Input.trigger?(Input::Return) or Input.trigger?(Input::Enter)
       if @index == 0
+        Roole.player = Player.new
         Scene.scene = MapScene.new
       end
+    elsif Input.release?(Input::L)
+      puts ":P"
     end
   end
 

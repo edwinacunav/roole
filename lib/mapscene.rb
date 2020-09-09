@@ -1,6 +1,7 @@
 class MapScene < BaseScene
   def initialize
     super()
+    @song = nil
     Scene.timer = 120
     @images << Load.picture('mapsign.png')
     @images[0].y = Graphics.height - @images[0].height
@@ -20,8 +21,9 @@ class MapScene < BaseScene
   def update
     super
     @hide_image = Scene.timer == 0
-    if Input.press?(Input::Escape)
-      Scene.call(TitleScene.new(0))
+    Roole.player.update
+    if Input.trigger?(Input::Escape)
+      Scene.return
       return
     end
   end

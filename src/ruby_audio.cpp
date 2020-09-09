@@ -20,7 +20,12 @@ static VALUE sample_init(VALUE self, VALUE name)
 {
   rb_iv_set(self, "@filename", name);
   const char *fn = RSTRING_PTR(name);
-  Roole::Sample *s = new Roole::Sample(fn);
+  Roole::Sample *s;
+  try {
+    s = new Roole::Sample(fn);
+  } catch (...) {
+    rb_raise(rb_eIOError, "File %s was not found or could not be open!", fn);
+  }
   RTYPEDDATA(self)->data = s;
   VALUE tmp = rb_iv_get(Audio, "@se_volume");
   s->set_volume(RB_FIX2INT(tmp));
@@ -77,7 +82,12 @@ static VALUE song_init(int argc, VALUE *argv, VALUE self)
   VALUE loop = (argc == 2 && argv[1] == Qtrue)? Qtrue : Qfalse;
   rb_iv_set(self, "@loop", loop);
   const char *fn = RSTRING_PTR(argv[0]);
-  Roole::Song *s = new Roole::Song(fn);
+  Roole::Song *s;
+  try {
+    s = new Roole::Song(fn);
+  } catch (...) {
+    rb_raise(rb_eIOError, "File %s was not found or could not be open!", fn);
+  }
   RTYPEDDATA(self)->data = s;
   VALUE volume = rb_iv_get(Audio, "@bgm_volume");
   rb_iv_set(self, "@volume", volume);

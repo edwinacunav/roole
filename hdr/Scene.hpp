@@ -11,4 +11,7 @@ namespace Scene
   void set_crash();
   bool is_zombie();
   void set_zombie();
+  bool is_game_reset();
+  void reset_game();
+  void clear_status();
 }

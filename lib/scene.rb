@@ -13,13 +13,12 @@ module Scene
   def update_timer
     if @close_timer > 0
       @close_timer -= 1
-      Input.clear_buttons
       return
     end
     @timer -= 1 if @timer > 0
   end
 end
-
+__END__
 class Roole::Window
   def press_button(bid)
     puts bid

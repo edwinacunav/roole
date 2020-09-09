@@ -72,6 +72,10 @@ namespace Roole
     //! Returns true if a button is currently pressed.
     //! Updated every tick.
     static bool down(Button btn);
+    static bool was_down(Button btn);
+    //! Returns true if a button is currently pressed.
+    //! Updated every tick.
+    static bool up(Button btn);
     //! Returns the horizontal position of the mouse relative to the top
     //! left corner of the window given to Input's constructor.
     double mouse_x() const;

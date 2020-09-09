@@ -99,7 +99,7 @@ namespace Roole
     //! Called when a file is dropped onto the window.
     //! \param filename The filename of the dropped file. When multiple files are dropped, this
     //! method will be called several times.
-    virtual void drop(const std::string& filename) {}
+    virtual void drop(const std::string& filename);
     // Ignore when SWIG is wrapping this class for Ruby/Roole.
     #ifndef SWIG
     // Callbacks for touch events. So far these are only used on iOS.
